@@ -5,12 +5,31 @@ import type { WorkoutItem } from '../types.ts';
 let ai: GoogleGenAI | null = null;
 
 /**
+ * Gets the API key from the environment in a way that avoids static analysis tools
+ * from breaking the build if the environment variable is not defined at build time.
+ * This is a common issue in deployment environments like Netlify.
+ */
+function getApiKey(): string | undefined {
+    try {
+        // Accessing `process.env` via the global scope (`self`) prevents build tools
+        // from trying to replace `process.env.API_KEY` with a value at build time.
+        // It ensures the value is read at runtime in the browser.
+        const env = (self as any).process?.env;
+        return env?.API_KEY;
+    } catch (e) {
+        console.error("Could not access environment variables.", e);
+        return undefined;
+    }
+}
+
+
+/**
  * Lazily initializes and returns the GoogleGenAI instance.
  * Throws an error if the API key is not configured.
  */
 function getAiInstance(): GoogleGenAI {
     if (!ai) {
-        const API_KEY = process.env.API_KEY;
+        const API_KEY = getApiKey();
 
         if (!API_KEY) {
             // This error is thrown only when the function is called, not on module load.
