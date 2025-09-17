@@ -1,0 +1,5 @@
+{
+  "name": "Blueflame Fitness Tracker",
+  "description": "A modern, AI-powered fitness application to track workouts, calculate one-rep max, view leaderboards, and get personalized feedback on your training sessions.",
+  "requestFramePermissions": []
+}
