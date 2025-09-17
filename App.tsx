@@ -1,15 +1,15 @@
 
 import React, { useState, useCallback } from 'react';
-import { Header } from './components/Header';
-import { ExerciseLibrary } from './components/ExerciseLibrary';
-import { MyWorkout } from './components/MyWorkout';
-import { Leaderboard } from './components/Leaderboard';
-import { OneRepMaxCalculator } from './components/OneRepMaxCalculator';
-import { WorkoutAnalysis } from './components/WorkoutAnalysis';
-import { Footer } from './components/Footer';
-import type { View, WorkoutItem, LeaderboardEntry } from './types';
-import { EXERCISES, INITIAL_LEADERBOARD_DATA } from './constants';
-import { getWorkoutAnalysis } from './services/geminiService';
+import { Header } from './components/Header.tsx';
+import { ExerciseLibrary } from './components/ExerciseLibrary.tsx';
+import { MyWorkout } from './components/MyWorkout.tsx';
+import { Leaderboard } from './components/Leaderboard.tsx';
+import { OneRepMaxCalculator } from './components/OneRepMaxCalculator.tsx';
+import { WorkoutAnalysis } from './components/WorkoutAnalysis.tsx';
+import { Footer } from './components/Footer.tsx';
+import type { View, WorkoutItem, LeaderboardEntry } from './types.ts';
+import { EXERCISES, INITIAL_LEADERBOARD_DATA } from './constants.ts';
+import { getWorkoutAnalysis } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('exercises');

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { View } from '../types';
+import type { View } from '../types.ts';
 
 interface HeaderProps {
   activeView: View;

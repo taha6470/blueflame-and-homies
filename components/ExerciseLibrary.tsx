@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import type { ExerciseData, MuscleGroup } from '../types';
-import { PlusIcon } from './icons/PlusIcon';
+import type { ExerciseData, MuscleGroup } from '../types.ts';
+import { PlusIcon } from './icons/PlusIcon.tsx';
 
 interface ExerciseLibraryProps {
   exercises: ExerciseData;

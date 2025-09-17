@@ -1,5 +1,5 @@
 
-import type { ExerciseData, LeaderboardEntry } from './types';
+import type { ExerciseData, LeaderboardEntry } from './types.ts';
 
 export const EXERCISES: ExerciseData = {
   Chest: [

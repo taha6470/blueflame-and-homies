@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { LeaderboardEntry } from '../types';
+import type { LeaderboardEntry } from '../types.ts';
 
 interface LeaderboardProps {
   data: LeaderboardEntry[];

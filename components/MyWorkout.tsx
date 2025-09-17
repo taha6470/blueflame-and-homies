@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import type { WorkoutItem } from '../types';
-import { TrashIcon } from './icons/TrashIcon';
+import type { WorkoutItem } from '../types.ts';
+import { TrashIcon } from './icons/TrashIcon.tsx';
 
 interface MyWorkoutProps {
   workoutItems: WorkoutItem[];

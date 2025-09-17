@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import type { WorkoutItem } from '../types';
+import type { WorkoutItem } from '../types.ts';
 
 let ai: GoogleGenAI | null = null;
 
