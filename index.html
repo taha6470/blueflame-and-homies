@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ADD THIS SCRIPT FOR IN-BROWSER JSX/TSX TRANSLATION -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <script>
       tailwind.config = {
         theme: {
@@ -37,10 +40,10 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-bf-dark text-bf-text">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <!-- UPDATE THIS SCRIPT TAG'S TYPE -->
+    <script type="text/babel" data-type="module" src="/index.tsx"></script>
   </body>
 </html>
