@@ -1,117 +1,108 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import type { WorkoutItem } from '../types';
 import { TrashIcon } from './icons/TrashIcon';
-import { Calendar } from './Calendar';
 
 interface MyWorkoutProps {
-  workout: WorkoutItem[];
-  selectedDate: Date;
-  onDateChange: (date: Date) => void;
-  workoutDays: string[];
-  onUpdateWorkout: (id: number, field: 'weight' | 'reps', value: number) => void;
-  onRemoveExercise: (id: number) => void;
+  workoutItems: WorkoutItem[];
+  onRemove: (id: number) => void;
+  onUpdate: (id: number, field: 'weight' | 'reps', value: string) => void;
   onLogWorkout: () => void;
-  findPreviousPerformance: (exerciseName: string) => { weight: number, reps: number } | null;
+  onAddCustom: (name: string) => void;
 }
 
-export const MyWorkout: React.FC<MyWorkoutProps> = ({ 
-  workout, 
-  selectedDate,
-  onDateChange,
-  workoutDays,
-  onUpdateWorkout, 
-  onRemoveExercise, 
-  onLogWorkout,
-  findPreviousPerformance
-}) => {
-  const formatDate = (date: Date): string => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(date);
-  };
+const WorkoutItemComponent: React.FC<{
+    item: WorkoutItem;
+    onRemove: (id: number) => void;
+    onUpdate: (id: number, field: 'weight' | 'reps', value: string) => void;
+}> = React.memo(({ item, onRemove, onUpdate }) => {
+    return (
+        <div className="bg-bf-gray-secondary p-4 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h3 className="text-lg font-semibold md:w-1/3">{item.name}</h3>
+            <div className="flex items-center gap-4">
+                <input
+                    type="number"
+                    placeholder="Weight (kg)"
+                    value={item.weight}
+                    onChange={(e) => onUpdate(item.id, 'weight', e.target.value)}
+                    className="bg-bf-gray-primary border border-gray-600 rounded-md p-2 w-full text-center focus:ring-bf-blue focus:border-bf-blue"
+                />
+                <input
+                    type="number"
+                    placeholder="Reps"
+                    value={item.reps}
+                    onChange={(e) => onUpdate(item.id, 'reps', e.target.value)}
+                    className="bg-bf-gray-primary border border-gray-600 rounded-md p-2 w-full text-center focus:ring-bf-blue focus:border-bf-blue"
+                />
+            </div>
+            <button
+                onClick={() => onRemove(item.id)}
+                className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition-colors duration-200 self-end md:self-center"
+                aria-label={`Remove ${item.name}`}
+            >
+                <TrashIcon className="w-5 h-5" />
+            </button>
+        </div>
+    );
+});
 
-  return (
-    <section id="my-workout" className="space-y-8">
-      <Calendar 
-        selectedDate={selectedDate}
-        onDateChange={onDateChange}
-        workoutDays={workoutDays}
-      />
-      <div className="bg-bf-gray-primary p-6 rounded-lg shadow-xl">
-        <h2 className="text-3xl font-bold mb-2 text-center text-bf-blue">
-          Workout for {formatDate(selectedDate)}
-        </h2>
-        {workout.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-400">No workout logged for this day.</p>
-            <p className="text-gray-500 mt-2">Go to the Exercise Library to add some lifts!</p>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-4 mt-6">
-              {workout.map((item) => {
-                const previous = findPreviousPerformance(item.name);
-                return (
-                  <div key={item.id} className="bg-bf-gray-secondary p-3 rounded-md">
-                    <div className="grid grid-cols-1 md:grid-cols-10 gap-2 items-center">
-                      <div className="md:col-span-4">
-                        <span className="text-lg font-medium">{item.name}</span>
-                        {previous && (
-                           <p className="text-xs text-gray-400">
-                             Last: {previous.weight} kg x {previous.reps} reps
-                           </p>
-                        )}
-                      </div>
-                      <div className="md:col-span-2">
-                        <label htmlFor={`weight-${item.id}`} className="sr-only">Weight</label>
-                        <input
-                          type="number"
-                          id={`weight-${item.id}`}
-                          value={item.weight}
-                          onChange={(e) => onUpdateWorkout(item.id, 'weight', parseInt(e.target.value, 10) || 0)}
-                          className="w-full bg-bf-gray-primary border border-gray-600 rounded-md p-2 text-center"
-                          placeholder="kg"
-                        />
-                      </div>
-                      <div className="md:col-span-1 text-center text-gray-400">x</div>
-                      <div className="md:col-span-2">
-                        <label htmlFor={`reps-${item.id}`} className="sr-only">Reps</label>
-                        <input
-                          type="number"
-                          id={`reps-${item.id}`}
-                          value={item.reps}
-                          onChange={(e) => onUpdateWorkout(item.id, 'reps', parseInt(e.target.value, 10) || 0)}
-                          className="w-full bg-bf-gray-primary border border-gray-600 rounded-md p-2 text-center"
-                          placeholder="reps"
-                        />
-                      </div>
-                      <div className="md:col-span-1 flex justify-end">
-                          <button
-                              onClick={() => onRemoveExercise(item.id)}
-                              className="text-red-500 hover:text-red-400 p-2 rounded-full transition-colors duration-200"
-                              aria-label={`Remove ${item.name}`}
-                          >
-                              <TrashIcon className="w-6 h-6" />
-                          </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+
+export const MyWorkout: React.FC<MyWorkoutProps> = ({ workoutItems, onRemove, onUpdate, onLogWorkout, onAddCustom }) => {
+    const [customExercise, setCustomExercise] = useState('');
+
+    const handleAddCustom = () => {
+        if (customExercise.trim()) {
+            onAddCustom(customExercise.trim());
+            setCustomExercise('');
+        }
+    };
+    
+    return (
+        <section id="my-workout" className="bg-bf-gray-primary p-6 rounded-lg shadow-xl space-y-6">
+            <h2 className="text-3xl font-bold text-center text-bf-blue">Today's Workout</h2>
+
+            <div id="workout-list" className="space-y-4">
+                {workoutItems.length > 0 ? (
+                    workoutItems.map(item => (
+                       <WorkoutItemComponent key={item.id} item={item} onRemove={onRemove} onUpdate={onUpdate} />
+                    ))
+                ) : (
+                    <p className="text-center text-gray-400 py-8">Add exercises from the library to get started!</p>
+                )}
             </div>
-            <div className="mt-8 text-center">
-              <button
-                onClick={onLogWorkout}
-                className="bg-green-600 text-white font-bold py-3 px-10 rounded-lg text-lg hover:bg-green-700 transition-colors duration-200"
-              >
-                Log Workout
-              </button>
+
+            <div className="pt-4 border-t border-gray-700">
+                <h3 className="text-xl font-semibold mb-4 text-center">Add a Custom Exercise</h3>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <input
+                        type="text"
+                        id="custom-exercise-name"
+                        value={customExercise}
+                        onChange={(e) => setCustomExercise(e.target.value)}
+                        placeholder="e.g., Bicep Curls"
+                        className="flex-grow bg-bf-gray-secondary border border-gray-600 rounded-md p-3 focus:ring-bf-blue focus:border-bf-blue"
+                    />
+                    <button
+                        id="add-custom-btn"
+                        onClick={handleAddCustom}
+                        className="bg-gray-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-700 transition-colors duration-200"
+                    >
+                        Add Custom
+                    </button>
+                </div>
             </div>
-          </>
-        )}
-      </div>
-    </section>
-  );
+
+            {workoutItems.length > 0 && (
+                <div className="text-center pt-6">
+                    <button
+                        id="log-workout-btn"
+                        onClick={onLogWorkout}
+                        className="bg-bf-blue text-white font-bold py-3 px-12 rounded-lg text-lg hover:bg-blue-600 transition-transform duration-200 transform hover:scale-105"
+                    >
+                        Log Workout & Get Analysis
+                    </button>
+                </div>
+            )}
+        </section>
+    );
 };

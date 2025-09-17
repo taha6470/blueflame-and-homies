@@ -1,4 +1,5 @@
-export type MuscleGroup = 'Chest' | 'Back' | 'Legs' | 'Shoulders' | 'Arms' | 'Core';
+
+export type MuscleGroup = 'Chest' | 'Back' | 'Biceps' | 'Triceps' | 'Shoulders' | 'Legs';
 
 export interface Exercise {
   name: string;
@@ -8,16 +9,9 @@ export type ExerciseData = Record<MuscleGroup, Exercise[]>;
 
 export interface WorkoutItem {
   id: number;
-  name: string;
-  weight: number;
-  reps: number;
-}
-
-export interface User {
-    id: string;
-    username: string;
-    email: string;
-    workouts: { [date: string]: WorkoutItem[] }; // e.g. { "2024-07-31": [workoutItem1, ...] }
+  name:string;
+  weight: string;
+  reps: string;
 }
 
 export interface LeaderboardEntry {
@@ -26,11 +20,4 @@ export interface LeaderboardEntry {
   weight: number;
 }
 
-export type View = 'exercises' | 'my-workout' | 'leaderboard' | 'calculator' | 'auth';
-
-export interface WorkoutSession {
-    id: string;
-    userId: string;
-    date: string; // YYYY-MM-DD
-    items: WorkoutItem[];
-}
+export type View = 'exercises' | 'my-workout' | 'leaderboard' | 'calculator' | 'analysis';

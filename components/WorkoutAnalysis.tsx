@@ -15,23 +15,75 @@ const LoadingSpinner: React.FC = () => (
 );
 
 
-// A simple markdown-to-HTML parser for the analysis text.
 const SimpleMarkdown: React.FC<{ text: string }> = ({ text }) => {
-    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const lines = text.split('\n');
+    const elements: React.ReactNode[] = [];
     
+    let listItems: string[] = [];
+    let listType: 'ul' | 'ol' | null = null;
+
+    const flushList = () => {
+        if (listItems.length === 0) return;
+        
+        if (listType === 'ul') {
+            elements.push(
+                <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-4">
+                    {listItems.map((item, index) => <li key={index}>{item}</li>)}
+                </ul>
+            );
+        } else if (listType === 'ol') {
+            elements.push(
+                <ol key={`list-${elements.length}`} className="list-decimal list-inside space-y-1 my-4">
+                    {listItems.map((item, index) => <li key={index}>{item}</li>)}
+                </ol>
+            );
+        }
+        listItems = [];
+        listType = null;
+    };
+
+    lines.forEach((line, index) => {
+        const trimmedLine = line.trim();
+        if (trimmedLine === '') {
+            flushList();
+            return;
+        }
+
+        if (line.startsWith('### ')) {
+            flushList();
+            elements.push(<h3 key={index} className="text-xl font-semibold mt-4 mb-2">{line.substring(4)}</h3>);
+        } else if (line.startsWith('## ')) {
+            flushList();
+            elements.push(<h2 key={index} className="text-2xl font-bold mt-6 mb-3 text-bf-blue">{line.substring(3)}</h2>);
+        } else if (line.startsWith('# ')) {
+            flushList();
+            elements.push(<h1 key={index} className="text-3xl font-bold mt-8 mb-4">{line.substring(2)}</h1>);
+        } else if (line.startsWith('* ')) {
+            if (listType !== 'ul') {
+                flushList();
+                listType = 'ul';
+            }
+            listItems.push(line.substring(2));
+        } else if (/^\d+\.\s/.test(line)) {
+            if (listType !== 'ol') {
+                flushList();
+                listType = 'ol';
+            }
+            listItems.push(line.substring(line.indexOf(' ') + 1));
+        } else {
+            flushList();
+            elements.push(<p key={index} className="mb-4">{line}</p>);
+        }
+    });
+
+    flushList(); 
+
     return (
         <div className="prose prose-invert prose-lg max-w-none">
-            {lines.map((line, index) => {
-                if (line.startsWith('### ')) return <h3 key={index} className="text-xl font-semibold mt-4 mb-2">{line.substring(4)}</h3>;
-                if (line.startsWith('## ')) return <h2 key={index} className="text-2xl font-bold mt-6 mb-3 text-bf-blue">{line.substring(3)}</h2>;
-                if (line.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-8 mb-4">{line.substring(2)}</h1>;
-                if (line.startsWith('* ')) return <li key={index} className="ml-5">{line.substring(2)}</li>;
-                if (/^\d+\.\s/.test(line)) return <li key={index} className="ml-5">{line.substring(line.indexOf(' ') + 1)}</li>
-                return <p key={index} className="mb-4">{line}</p>;
-            })}
+            {elements}
         </div>
-    )
-}
+    );
+};
 
 export const WorkoutAnalysis: React.FC<WorkoutAnalysisProps> = ({ analysis, isLoading, error }) => {
   return (

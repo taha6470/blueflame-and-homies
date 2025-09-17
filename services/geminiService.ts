@@ -2,13 +2,26 @@
 import { GoogleGenAI } from "@google/genai";
 import type { WorkoutItem } from '../types';
 
-const API_KEY = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
 
-if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+/**
+ * Lazily initializes and returns the GoogleGenAI instance.
+ * Throws an error if the API key is not configured.
+ */
+function getAiInstance(): GoogleGenAI {
+    if (!ai) {
+        const API_KEY = process.env.API_KEY;
+
+        if (!API_KEY) {
+            // This error is thrown only when the function is called, not on module load.
+            // It will be caught by the try...catch block in App.tsx.
+            throw new Error("API_KEY environment variable not set. The app cannot connect to the AI service.");
+        }
+        ai = new GoogleGenAI({ apiKey: API_KEY });
+    }
+    return ai;
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export const getWorkoutAnalysis = async (workout: WorkoutItem[]): Promise<string> => {
   const workoutString = workout.map(item => `${item.name}: ${item.weight} kg for ${item.reps} reps`).join('\n');
@@ -30,7 +43,8 @@ export const getWorkoutAnalysis = async (workout: WorkoutItem[]): Promise<string
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const aiInstance = getAiInstance();
+    const response = await aiInstance.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt
     });
@@ -38,6 +52,10 @@ export const getWorkoutAnalysis = async (workout: WorkoutItem[]): Promise<string
     return response.text;
   } catch (error) {
     console.error("Gemini API call failed:", error);
+    // Re-throw the error so it can be caught by the UI component and displayed to the user.
+    if (error instanceof Error && error.message.startsWith("API_KEY")) {
+        throw error;
+    }
     throw new Error("Failed to get analysis from AI. The model may be overloaded or the API key is invalid.");
   }
 };
